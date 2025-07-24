@@ -1,0 +1,45 @@
+plugins {
+    id 'org.springframework.boot' version '3.5.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'org.example'
+    version = '0.0.1-SNAPSHOT'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    ext {
+        set('springCloudVersion', "2025.0.0")
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}" // 버전을 프로젝트에 맞게 확인하세요
+        }
+    }
+}
+
+// Docker Compose를 실행하는 커스텀 태스크 정의
+task buildAndComposeUp(type: Exec) {
+
+    // 실행할 명령어 정의
+    commandLine 'docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '--build', '-d'
+
+    // 작업 완료 후 메시지 출력
+    doLast {
+        println "All modules built and Docker containers are starting."
+    }
+}

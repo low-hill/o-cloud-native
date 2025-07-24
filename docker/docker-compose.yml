@@ -1,0 +1,63 @@
+services:
+  database:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB:       "ostock_dev"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/1-init.sql
+      - ./data.sql:/docker-entrypoint-initdb.d/2-data.sql
+    networks:
+      backend:
+        aliases:
+          - "database"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  configserver:
+    image: ostock/configserver:0.0.1-SNAPSHOT
+    build:
+      context: ..
+      dockerfile: ./configserver/Dockerfile
+    ports:
+      - "8071:8071"
+    environment:
+      ENCRYPT_KEY: "${ENCRYPT_KEY_VALUE}"
+    networks:
+      backend:
+        aliases:
+          - "configserver"
+    healthcheck:
+      # Actuator의 health 엔드포인트를 호출하여 서비스 준비 상태를 확인합니다.
+      test: [ "CMD", "curl", "-f", "http://localhost:8071/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s # 컨테이너 시작 후 10초 뒤부터 health check 시작
+
+  licensingservice:
+    image: ostock/licensing-service:0.0.1-SNAPSHOT
+    build:
+      context: ..
+      dockerfile: ./licensing-service/Dockerfile
+    environment:
+      PROFILE: "dev"
+      CONFIGSERVER_URI: "http://configserver:8071"
+    depends_on:
+      database:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

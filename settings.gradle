@@ -1,0 +1,4 @@
+rootProject.name = 'O-stock'
+
+include 'configserver'
+include 'licensing-service'
