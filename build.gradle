@@ -33,7 +33,7 @@ subprojects {
 }
 
 // Docker Compose를 실행하는 커스텀 태스크 정의
-task buildAndComposeUp(type: Exec) {
+tasks.register('buildAndComposeUp', Exec) {
 
     // 실행할 명령어 정의
     commandLine 'docker', 'compose', '-f', 'docker/docker-compose.yml', 'up', '--build', '-d'

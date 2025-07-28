@@ -1,4 +1,6 @@
 rootProject.name = 'O-stock'
 
 include 'configserver'
+include 'eurekaserver'
 include 'licensing-service'
+include 'organization-service'
