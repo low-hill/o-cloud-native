@@ -1,4 +1,4 @@
-package org.example.licensingservice.service.client;
+package org.example.licensingservice.client;
 
 import org.example.licensingservice.model.Organization;
 import org.springframework.cloud.openfeign.FeignClient;

@@ -1,21 +1,40 @@
 package org.example.licensingservice.controller;
 
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.licensingservice.model.License;
+import org.example.licensingservice.service.LicenseService;
+import org.example.licensingservice.context.UserContextHolder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import lombok.RequiredArgsConstructor;
-import org.example.licensingservice.model.License;
-import org.example.licensingservice.service.LicenseService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping(value="v1/organization/{organizationId}/license")
 public class LicenseController {
 
     private final LicenseService licenseService;
+
+    @GetMapping
+    public List<License> getLicenses(@PathVariable("organizationId") String organizationId) throws TimeoutException {
+        log.debug("LicenseServiceController Correlation id: {}", UserContextHolder.getContext().getCorrelationId());
+        return licenseService.getLicensesByOrganization(organizationId);
+    }
 
     @GetMapping(value="/{licenseId}")
     public ResponseEntity<License> getLicense(@PathVariable("organizationId") String organizationId,

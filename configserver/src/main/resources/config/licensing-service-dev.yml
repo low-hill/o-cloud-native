@@ -20,6 +20,72 @@ eureka:
     serviceUrl:
       defaultZone: http://eurekaserver:8070/eureka/
 
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: TIME_BASED
+      waitDurationInOpenState: 10s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+      recordExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+        - java.util.concurrent.TimeoutException
+        - org.springframework.web.client.ResourceAccessException
+
+  instances:
+    licenseService:
+      baseConfig: default
+    organizationService:
+      baseConfig: default
+      waitDurationInOpenState: 50s
+      failureRateThreshold: 60
+
+resilience4j.ratelimiter:
+  instances:
+    licenseService:
+      limitForPeriod: 100
+      limitRefreshPeriod: 10000
+      timeoutDuration: 1000ms
+
+resilience4j.retry:
+  instances:
+    retryLicenseService:
+      waitDuration: 1000
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      retry-exceptions:
+        - java.util.concurrent.TimeoutException
+    retryOrganizationService:
+      waitDuration: 1000
+      enableExponentialBackoff: true
+      exponentialBackoffMultiplier: 2
+      retry-exceptions:
+        - java.util.concurrent.TimeoutException
+
+resilience4j.bulkhead:
+  instances:
+    bulkheadLicenseService:
+      maxWaitDuration: 2ms
+      maxConcurrentCalls: 20
+    bulkheadOrganizationService:
+      maxWaitDuration: 2ms
+      maxConcurrentCalls: 20
+
+
+resilience4j.thread-pool-bulkhead:
+  instances:
+    bulkheadLicenseService:
+      maxThreadPoolSize: 10
+      coreThreadPoolSize: 5
+      queueCapacity: 100
+
+
 # Jasypt
 encrypt:
   key: "IMSYMMETRIC"
