@@ -1,0 +1,9 @@
+server:
+  port: 8072
+spring:
+  application:
+    name: gateway-server
+  profiles:
+    active: local
+  config:
+    import: "optional:configserver:${CONFIGSERVER_URI:http://localhost:8071}"
