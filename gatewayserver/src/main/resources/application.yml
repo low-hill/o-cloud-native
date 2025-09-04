@@ -7,3 +7,9 @@ spring:
     active: local
   config:
     import: "optional:configserver:${CONFIGSERVER_URI:http://localhost:8071}"
+
+logging:
+  level:
+    com.netflix: WARN
+    org.springframework.web: WARN
+    org.example: DEBUG
